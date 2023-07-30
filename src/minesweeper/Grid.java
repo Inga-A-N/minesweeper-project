@@ -5,8 +5,10 @@ import java.util.Scanner;
 
 public class Grid {
     
-    public Grid() {
-    String[][]twoDGrid = new String[10][10];
+    public Grid(int height, int width, int numberOfBombs) {
+	
+	
+	String[][]twoDGrid = new String[height+1][width+1];
     
     	int x, y;
 	Random randomGenerator=new Random();
@@ -19,12 +21,16 @@ public class Grid {
 		}
 	}
 	
+//	    Enumerating rows and columns
+	GridUtils.enumeratingRowsAndColumns(twoDGrid);
+	    
+	
 	int counter = 0;
 		
-	while(counter < 10) {
+	while(counter < numberOfBombs) {
          
-    	    	x = randomGenerator.nextInt(10);
-        	y = randomGenerator.nextInt(10);
+    	    	x = randomGenerator.nextInt(1, height+1);
+        	y = randomGenerator.nextInt(1, width+1);
     		    		
     		if (twoDGrid[x][y] != "b") {
     		twoDGrid[x][y] = "b";
@@ -35,8 +41,8 @@ public class Grid {
     	    }
     	    
     	    
-	for (int i = 0; i<twoDGrid[0].length; i++) {
-	    for (int j = 0; j<twoDGrid[0].length; j++) {
+	for (int i = 0; i<twoDGrid.length; i++) {
+	    for (int j = 0; j<twoDGrid[i].length; j++) {
 	        System.out.printf("[%s]", twoDGrid[i][j]);
 	    }
 	    System.out.println();
@@ -46,60 +52,80 @@ public class Grid {
 	
 	System.out.println();
 	System.out.println("Displayed Grid");
-	String[][]twoDGridToDisplay = new String[10][10];
-	    for (int i = 0; i < twoDGridToDisplay.length; i++){
-		    for (int j = 0; j < twoDGridToDisplay[0].length; j++) {
+	String[][]twoDGridToDisplay = new String[height+1][width+1];
+	    for (int i = 1; i < twoDGridToDisplay.length; i++){
+		    for (int j = 1; j < twoDGridToDisplay[0].length; j++) {
 		    
 			twoDGridToDisplay[i][j]= "*";
 			
 			}
 		}
-	    for (int i = 0; i<twoDGridToDisplay[0].length; i++) {
-		    for (int j = 0; j<twoDGridToDisplay[0].length; j++) {
-		        System.out.printf("[%s]", twoDGridToDisplay[i][j]);
-		    }
-		    System.out.println();
-		} 
+//	    Enumerating rows and columns
+	    
+	    
+	    GridUtils.enumeratingRowsAndColumns(twoDGridToDisplay);
+	    
+	    
+	    
+//	    Filling the whole grid
+	    
+	    GridUtils.printDisplayGrid(twoDGridToDisplay);
+	    
 	    
 //	    User Input
-	    
 	Scanner userInput = new Scanner(System.in);
+	
 	boolean gameLost = false;
+	boolean gameWon = false;
 	int a, b;
 	
-	while(gameLost != true) {
+	
+	
+	while(gameLost != true && gameWon != true) {
 		
-	System.out.println("Please coordinate X");
+	System.out.println("Please enter row number");
 	System.out.println();
 	a = userInput.nextInt();
 	
-	System.out.println("Please coordinate Y");
+	System.out.println("Please enter column number");
 	System.out.println();
 	b = userInput.nextInt();
 	
+	if ((a < 1|| a > height+1)|| (b < 1|| b > width+1)) {
+		System.out.println("One or both coordinates are out of range, please enter integers in the range 1 to 10.");
+		continue;
+	    }
+	
 	if (twoDGrid[a][b] == "b") {
 	    System.out.println("Game Lost!");
+	    GridUtils.printDisplayGrid(twoDGrid);
 	    gameLost = true;
 	}else {
 	    int bombsAroundCounter = 0;
-//	    for (int i = 0; i < 9; i++) {
-//		
-//	    }
-	    if(a > 0 && b > 0 && twoDGrid[a-1][b-1]=="b") {
+	    
+
+	    if(a > 1 && b > 1 && twoDGrid[a-1][b-1]=="b") {
 		bombsAroundCounter++;
-	    }else if(a > 0 && twoDGrid[a-1][b]=="b"){
+	    }
+	    if(a > 1 && twoDGrid[a-1][b]=="b"){
 		bombsAroundCounter++;
-	    }else if( a > 0 && b < 9 && twoDGrid[a-1][b+1]=="b"){
+	    }
+	    if( a > 1 && b < twoDGridToDisplay[0].length-1 && twoDGrid[a-1][b+1]=="b"){
 		bombsAroundCounter++;
-	    }else if(b < 9 && twoDGrid[a][b+1]=="b"){
+	    }
+	    if(b < twoDGridToDisplay[0].length-1 && twoDGrid[a][b+1]=="b"){
 		bombsAroundCounter++;
-	    }else if(a < 9 && b < 9 && twoDGrid[a+1][b+1]=="b"){
+	    }
+	    if(a < twoDGridToDisplay.length-1 && b < twoDGridToDisplay[0].length-1 && twoDGrid[a+1][b+1]=="b"){
 		bombsAroundCounter++;
-	    }else if(a < 9 && twoDGrid[a+1][b]=="b"){
+	    }
+	    if(a < twoDGridToDisplay.length-1 && twoDGrid[a+1][b]=="b"){
 		bombsAroundCounter++;
-	    }else if(a < 9 && b > 0 && twoDGrid[a+1][b-1]=="b"){
+	    }
+	    if(a < twoDGridToDisplay.length-1 && b > 1 && twoDGrid[a+1][b-1]=="b"){
 		bombsAroundCounter++;
-	    }else if(b > 0 && twoDGrid[a][b-1]=="b"){
+	    }
+	    if(b > 1 && twoDGrid[a][b-1]=="b"){
 		bombsAroundCounter++;
 	    }
 	    
@@ -108,6 +134,22 @@ public class Grid {
 	    GridUtils.printDisplayGrid(twoDGridToDisplay);
 	}
 	
+	int countingOpenSquares = 0;
+	
+	for (int i = 1; i<twoDGridToDisplay.length; i++) {
+	    for (int j = 1; j<twoDGridToDisplay[i].length; j++) {
+	        if (twoDGridToDisplay[i][j]!= "*") {
+	         countingOpenSquares++;   
+	        };
+	    }
+	  } 
+	
+	System.out.println("Open squares "+ countingOpenSquares);
+	
+	if (countingOpenSquares == width*height-numberOfBombs) {
+	    System.out.println("You WON!");
+	    gameWon = true;
+	}
 	}
 	
 	
